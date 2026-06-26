@@ -1,59 +1,104 @@
-# E-Commerce Microservices Architecture Demo
+# 🛍️ ShopMind — AI-Powered E-Commerce with Semantic Search
 
 ![Status](https://img.shields.io/badge/Status-In%20Development-yellow?style=for-the-badge)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-FF6B35?style=for-the-badge&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-A hands-on demonstration of microservices architecture for an e-commerce platform. Each service is independently deployable via Docker. Built for learning distributed systems design patterns.
+> **"E-ticaret aklansın."**
+
+---
+
+## The Problem
+
+Traditional e-commerce search is keyword-matching. Type "hafif su geçirmez koşu ayakkabısı" and get zero results — because the product is tagged "lightweight waterproof running shoes" in English. Change one word, get completely different results.
+
+Recommendations are equally broken: "Bunu alanlar şunu da aldı" is based on co-purchase data, not understanding. No one explains *why* a product fits you.
+
+## The Solution
+
+**ShopMind** is a full e-commerce platform where:
+1. **Search is semantic** — your query is embedded and matched by meaning, not keywords
+2. **Product descriptions are AI-generated** — admin uploads specs, AI writes compelling copy
+3. **Recommendations come with reasoning** — the AI explains *why* it recommends each product
+
+---
+
+## Semantic Search in Action
+
+```
+User query: "hafif su geçirmez koşu ayakkabısı"
+
+Traditional search:
+  → 0 results (no Turkish keyword match)
+
+ShopMind semantic search:
+  Query embedded → ChromaDB similarity search
+  
+  Results:
+  1. Nike Air Zoom Pegasus 40 — "lightweight waterproof running shoe"
+     Similarity score: 0.94
+     
+  2. Adidas Ultraboost Rain.RDY — "water-resistant ultra-light runner"
+     Similarity score: 0.91
+     
+  3. Brooks Ghost 15 GTX — "Gore-Tex waterproof, featherweight design"
+     Similarity score: 0.88
+```
+
+## AI Recommendation Reasoning
+
+```
+Recommended: Sony WH-1000XM5
+
+ShopMind AI:
+  "Bu kulaklığı beğenebilirsin çünkü:
+   - Son 3 alışverişinde uzun pil ömrü tercih ettin (30 saat burada)
+   - Kahve dükkanı ve ofis ziyaretleri için ANC kullanıcısısın
+   - Bütçen 3500-5000 TL aralığında, bu ürün 4200 TL
+   - Benzer profilli 847 kullanıcı bu ürünü 4.8/5 puanladı"
+```
 
 ---
 
 ## Architecture
 
 ```
-                         ┌──────────────────┐
-                         │   React Frontend  │
-                         └────────┬─────────┘
-                                  │ HTTP
-                         ┌────────▼─────────┐
-                         │   API Gateway    │  Rate limiting, routing,
-                         │   (Express)      │  request validation
-                         └──┬──┬──┬──┬──┬──┘
-                            │  │  │  │  │
-           ┌────────────────┘  │  │  │  └──────────────────┐
-           │             ┌─────┘  └─────┐                  │
-           ▼             ▼              ▼                   ▼
-    ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────────────┐
-    │   Auth   │  │ Product  │  │  Order   │  │  Notification     │
-    │ Service  │  │ Service  │  │ Service  │  │  Service (Email)  │
-    └────┬─────┘  └────┬─────┘  └────┬─────┘  └─────────┬─────────┘
-         │              │              │                  │
-    ┌────▼─────┐  ┌─────▼─────┐  ┌────▼─────┐           │
-    │  MongoDB │  │  MongoDB  │  │  MongoDB │        ┌───▼────┐
-    │  (users) │  │(products) │  │ (orders) │        │RabbitMQ│
-    └──────────┘  └───────────┘  └──────────┘        └────────┘
-                                       │
-                                 ┌─────▼─────┐
-                                 │   Redis   │
-                                 │  (cache)  │
-                                 └───────────┘
+┌──────────────────────────────────────────────────────────┐
+│                    React Frontend                        │
+│   Search Bar | Product Grid | Cart | Recommendations     │
+└───────────────────────┬──────────────────────────────────┘
+                        │ REST API
+┌───────────────────────▼──────────────────────────────────┐
+│                  Express.js API                          │
+│              Auth | Products | Orders | AI               │
+└────┬──────────────┬──────────────────┬────────────────────┘
+     │              │                  │
+┌────▼────┐  ┌──────▼──────┐  ┌────────▼────────────────┐
+│ MongoDB │  │  ChromaDB   │  │   Ollama (local)         │
+│ Products│  │  Vector DB  │  │   qwen2.5:7b             │
+│ Orders  │  │  (product   │  │   - Description generator │
+│ Users   │  │  embeddings)│  │   - Recommendation engine │
+└─────────┘  └─────────────┘  └─────────────────────────┘
 ```
 
 ---
 
-## Planned Services
+## Features
 
-| Service | Port | Responsibility |
-|---------|------|---------------|
-| API Gateway | 3000 | Route requests, rate limit, auth token validation |
-| Auth Service | 3001 | Register, login, JWT issuance and refresh |
-| Product Service | 3002 | Product catalog, search, inventory |
-| Order Service | 3003 | Cart, checkout, order status |
-| Notification Service | 3004 | Email notifications via nodemailer |
-| Frontend (React) | 5173 | Customer-facing UI |
+| Feature | Description |
+|---------|-------------|
+| 🔍 Semantic Search | Query → nomic-embed-text → ChromaDB cosine similarity |
+| ✍️ AI Product Copy | Admin uploads specs → Ollama generates title + description + bullets |
+| 🎯 Smart Recommendations | LLM explains why each product fits the user's profile |
+| 📈 Anomaly Detection | Unusual sales patterns → admin alert (sudden spike or drop) |
+| 🛒 Full E-Commerce | Cart, checkout, order history, payment simulation (Stripe test mode) |
+| 👤 Auth | JWT + HTTP-only cookies, user preference tracking |
+| 🎛️ Admin Dashboard | Product management + AI description tool + inventory alerts |
+| 🐳 Docker | Full stack runs with `docker compose up` |
 
 ---
 
@@ -61,41 +106,88 @@ A hands-on demonstration of microservices architecture for an e-commerce platfor
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Node.js, Express.js |
-| Frontend | React, Vite |
-| Database | MongoDB (per-service) |
-| Cache | Redis |
-| Message Queue | RabbitMQ |
-| Containerization | Docker, Docker Compose |
-| Auth | JWT (access + refresh token pattern) |
+| Frontend | React 18 + Tailwind CSS + Vite |
+| Backend | Node.js + Express.js |
+| Database | MongoDB (users, products, orders) |
+| Vector DB | ChromaDB (product embeddings) |
+| AI | Ollama: qwen2.5:7b (text) + nomic-embed-text (embeddings) |
+| Auth | JWT + HTTP-only cookies |
+| Payment | Stripe (test mode) |
+| Containerization | Docker + Docker Compose |
 
 ---
 
-## Roadmap
+## Implementation Roadmap
 
-| Phase | Task | Status |
-|-------|------|--------|
-| Phase 1 | Docker Compose setup, service scaffolding | [ ] |
-| Phase 2 | Auth Service (register, login, JWT refresh) | [ ] |
-| Phase 3 | API Gateway (routing + rate limiting) | [ ] |
-| Phase 4 | Product Service (CRUD + search) | [ ] |
-| Phase 5 | Order Service (cart + checkout) | [ ] |
-| Phase 6 | RabbitMQ event bus (order-created → notification) | [ ] |
-| Phase 7 | Notification Service (order confirmation email) | [ ] |
-| Phase 8 | Redis caching (product catalog) | [ ] |
-| Phase 9 | React frontend (browse → cart → checkout) | [ ] |
-| Phase 10 | Health checks + centralized logging | [ ] |
+### Phase 1 — Database + Product Schema
+- [ ] Docker Compose: MongoDB + ChromaDB + Ollama + Express + React
+- [ ] Product schema: name, description, specs (JSON), price, category, stock, images
+- [ ] Seed script: 50 products across 5 categories
+- [ ] Admin auth (separate role)
+- [ ] Basic product CRUD API (admin-only write, public read)
+
+### Phase 2 — Semantic Search Engine
+- [ ] On product create/update → embed description via nomic-embed-text
+- [ ] Store vector in ChromaDB with product_id metadata
+- [ ] Search endpoint: embed query → ChromaDB similarity search → return top-10 with scores
+- [ ] Fallback: if similarity score < 0.5 → traditional MongoDB text search
+- [ ] Search results UI: show relevance score in dev mode
+- [ ] Turkish query support (nomic-embed-text is multilingual)
+
+### Phase 3 — Auth + Cart + Orders
+- [ ] User register/login (JWT, HTTP-only cookie)
+- [ ] User schema: purchaseHistory, viewedProducts, preferredCategories, priceRange
+- [ ] Cart: add/remove/update quantity (stored in MongoDB)
+- [ ] Checkout flow: address → payment (Stripe test) → order created
+- [ ] Order history page
+- [ ] Update user preference profile after each purchase
+
+### Phase 4 — AI Features
+- [ ] AI Product Description Generator (admin panel):
+  - Admin fills: product name, specs (bullet points), category, price
+  - Ollama generates: engaging title, 150-word description, 5 feature bullets
+  - Admin reviews → saves
+- [ ] AI Recommendation Engine:
+  - On product page: "Bu ürüne benzer öneriler" — semantic similarity via ChromaDB
+  - On home page: personalized "Senin için" — combine user history + LLM reasoning
+  - LLM generates reasoning text in Turkish
+- [ ] Inventory Anomaly Detection:
+  - Cron job (daily): compare 7-day vs 30-day sales velocity per product
+  - If deviation > 2 standard deviations → admin notification
+
+### Phase 5 — Admin Dashboard + Polish
+- [ ] Admin dashboard: product list, stock levels, sales chart (recharts)
+- [ ] AI description tool (integrated in product form)
+- [ ] Anomaly alert panel (list of flagged products)
+- [ ] Image upload (Cloudinary free tier or local multer)
+- [ ] Mobile responsive UI
+- [ ] Production Docker build (nginx reverse proxy for frontend)
+
+### Phase 6 — Evaluation + Documentation
+- [ ] Benchmark semantic search vs keyword search (precision@5 on 20 test queries)
+- [ ] Search quality table in README
+- [ ] API documentation (Swagger / Postman collection)
+- [ ] Architecture diagram (rendered with draw.io or Excalidraw)
 
 ---
 
-## Getting Started (planned)
+## Getting Started (once Phase 1 is complete)
 
 ```bash
+# Prerequisites: Docker, Ollama
+ollama pull qwen2.5:7b
+ollama pull nomic-embed-text
+
 git clone https://github.com/tursuntalha/Project-2.git
 cd Project-2
-
-# Start all services
 docker compose up --build
 ```
 
-Individual services will be reachable on their respective ports. See `docker-compose.yml` for the full service map.
+Services:
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:3000`
+- Admin: `http://localhost:5173/admin`
+
+---
+
+> ShopMind proves that understanding a customer's intent is more valuable than matching their exact words.
