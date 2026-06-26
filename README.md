@@ -119,55 +119,55 @@ ShopMind AI:
 
 ## Implementation Roadmap
 
-### Phase 1 — Database + Product Schema
-- [ ] Docker Compose: MongoDB + ChromaDB + Ollama + Express + React
-- [ ] Product schema: name, description, specs (JSON), price, category, stock, images
-- [ ] Seed script: 50 products across 5 categories
-- [ ] Admin auth (separate role)
-- [ ] Basic product CRUD API (admin-only write, public read)
+### Phase 1 — Database + Product Schema ✅
+- [x] Docker Compose: MongoDB + ChromaDB + Ollama + Express + React
+- [x] Product schema: name, description, specs (JSON), price, category, stock, images
+- [x] Seed script: 50 products across 5 categories
+- [x] Admin auth (separate role)
+- [x] Basic product CRUD API (admin-only write, public read)
 
-### Phase 2 — Semantic Search Engine
-- [ ] On product create/update → embed description via nomic-embed-text
-- [ ] Store vector in ChromaDB with product_id metadata
-- [ ] Search endpoint: embed query → ChromaDB similarity search → return top-10 with scores
-- [ ] Fallback: if similarity score < 0.5 → traditional MongoDB text search
-- [ ] Search results UI: show relevance score in dev mode
-- [ ] Turkish query support (nomic-embed-text is multilingual)
+### Phase 2 — Semantic Search Engine ✅
+- [x] On product create/update → embed description via nomic-embed-text
+- [x] Store vector in ChromaDB with product_id metadata
+- [x] Search endpoint: embed query → ChromaDB similarity search → return top-10 with scores
+- [x] Fallback: if similarity score < 0.5 → traditional MongoDB text search
+- [x] Search results UI: show relevance score in dev mode
+- [x] Turkish query support (nomic-embed-text is multilingual)
 
-### Phase 3 — Auth + Cart + Orders
-- [ ] User register/login (JWT, HTTP-only cookie)
-- [ ] User schema: purchaseHistory, viewedProducts, preferredCategories, priceRange
-- [ ] Cart: add/remove/update quantity (stored in MongoDB)
-- [ ] Checkout flow: address → payment (Stripe test) → order created
-- [ ] Order history page
-- [ ] Update user preference profile after each purchase
+### Phase 3 — Auth + Cart + Orders ✅
+- [x] User register/login (JWT, HTTP-only cookie)
+- [x] User schema: purchaseHistory, viewedProducts, preferredCategories, priceRange
+- [x] Cart: add/remove/update quantity (stored in MongoDB)
+- [x] Checkout flow: address → payment (Stripe test) → order created
+- [x] Order history page
+- [x] Update user preference profile after each purchase
 
-### Phase 4 — AI Features
-- [ ] AI Product Description Generator (admin panel):
+### Phase 4 — AI Features ✅
+- [x] AI Product Description Generator (admin panel):
   - Admin fills: product name, specs (bullet points), category, price
   - Ollama generates: engaging title, 150-word description, 5 feature bullets
   - Admin reviews → saves
-- [ ] AI Recommendation Engine:
+- [x] AI Recommendation Engine:
   - On product page: "Bu ürüne benzer öneriler" — semantic similarity via ChromaDB
   - On home page: personalized "Senin için" — combine user history + LLM reasoning
   - LLM generates reasoning text in Turkish
-- [ ] Inventory Anomaly Detection:
+- [x] Inventory Anomaly Detection:
   - Cron job (daily): compare 7-day vs 30-day sales velocity per product
   - If deviation > 2 standard deviations → admin notification
 
-### Phase 5 — Admin Dashboard + Polish
-- [ ] Admin dashboard: product list, stock levels, sales chart (recharts)
-- [ ] AI description tool (integrated in product form)
-- [ ] Anomaly alert panel (list of flagged products)
-- [ ] Image upload (Cloudinary free tier or local multer)
-- [ ] Mobile responsive UI
-- [ ] Production Docker build (nginx reverse proxy for frontend)
+### Phase 5 — Admin Dashboard + Polish ✅
+- [x] Admin dashboard: product list, stock levels, sales chart (recharts)
+- [x] AI description tool (integrated in product form)
+- [x] Anomaly alert panel (list of flagged products)
+- [x] Image upload (Cloudinary free tier or local multer)
+- [x] Mobile responsive UI
+- [x] Production Docker build (nginx reverse proxy for frontend)
 
-### Phase 6 — Evaluation + Documentation
-- [ ] Benchmark semantic search vs keyword search (precision@5 on 20 test queries)
-- [ ] Search quality table in README
-- [ ] API documentation (Swagger / Postman collection)
-- [ ] Architecture diagram (rendered with draw.io or Excalidraw)
+### Phase 6 — Evaluation + Documentation ✅
+- [x] Benchmark semantic search vs keyword search (precision@5 on 20 test queries)
+- [x] Search quality table in README
+- [x] API documentation (Swagger / Postman collection)
+- [x] Architecture diagram (rendered with draw.io or Excalidraw)
 
 ---
 

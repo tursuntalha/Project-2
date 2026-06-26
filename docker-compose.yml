@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:7
+    ports: ['27017:27017']
+    volumes: [mongo_data:/data/db]
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports: ['8000:8000']
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+    volumes: [chroma_data:/chroma/chroma]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports: ['11434:11434']
+    volumes: [ollama_data:/root/.ollama]
+
+  server:
+    build: ./server
+    ports: ['3000:3000']
+    depends_on: [mongodb, chromadb, ollama]
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/shopmind
+      - CHROMA_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+      - JWT_SECRET=shopmind-secret-key-change-in-prod
+      - STRIPE_KEY=sk_test_placeholder
+
+  client:
+    build: ./client
+    ports: ['5173:5173']
+    depends_on: [server]
+    environment:
+      - VITE_API_URL=http://localhost:3000
+
+  nginx:
+    image: nginx:alpine
+    ports: ['80:80']
+    volumes: [./docker/nginx.conf:/etc/nginx/conf.d/default.conf]
+    depends_on: [server, client]
+
+volumes:
+  mongo_data:
+  chroma_data:
+  ollama_data:
